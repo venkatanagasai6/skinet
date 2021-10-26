@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Data;
+using Core.interfaces;
 
 namespace API
 {
@@ -24,6 +25,8 @@ namespace API
         {
 
             services.AddControllers();
+
+            services.AddScoped<IProductRepository, ProductRepository>();
             
             services.AddDbContext<StoreContext>(x => 
             x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));

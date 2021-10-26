@@ -1,11 +1,8 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Infrastructure.Data;
 using Core.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Core.interfaces;
 
 namespace API.Controllers
 {
@@ -14,22 +11,20 @@ namespace API.Controllers
     [Route("api/[controller]")] // https://localhost:5001/api/products/ => here products is the name of the class 
     public class ProductsController : ControllerBase
     {
-        private readonly StoreContext _context;
-
-        // create a constructor of getting data
-        public ProductsController(StoreContext context)
+        private readonly IProductRepository _repo;
+        public ProductsController(IProductRepository repo)
         {
-            _context = context;
+            _repo = repo;
         }
+
 
 
         // default function to run 
         [HttpGet]
         public async Task< ActionResult<List<Product>> > getListOfProducts(){
             
-            // get the table from db and convert it into list 
-            // the list was named as Products in Context class = StoreContext.cs
-            var products = await _context.Products.ToListAsync();
+            
+            var products = await _repo.GetProductsAsync();
 
             return Ok(products);
 
@@ -40,9 +35,29 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public async Task< ActionResult<Product> > getProductName(int id){
             
-            return await _context.Products.FindAsync(id);
+            return await _repo.GetProductByIdAsync(id);
 
         }
+
+
+        [HttpGet("brands")]
+        public async Task<ActionResult<IReadOnlyList<ProductBrand>>> getProductBrands()
+        {
+            // we need to wrap this into OK because we are returning ReadOnlyList check the error
+            // for more explanation
+            return Ok(await _repo.GetProductBrandsAsync());
+        }
+
+
+        [HttpGet("types")]
+        public async Task<ActionResult<IReadOnlyList<ProductBrand>>> getProductTypes()
+        {
+            // we need to wrap this into OK because we are returning ReadOnlyList check the error
+            // for more explanation
+            return Ok(await _repo.GetProductTypesAsync());
+        }
+
+     
               
     }
 }
